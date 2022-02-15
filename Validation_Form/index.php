@@ -42,11 +42,12 @@
     <?php 
         $department = ['Computer Department','Civil Department','Power Department','Electrical Department','Mechanical Department','AIDT'];
         //difine variable empty
-        $stNameErr = $fNameErr = $mNameErr = $emailErr = $genderErr = $ageErr = $phoneErr = $commentErr = $departmentErr = '';
-        $stName = $fName = $mName = $email = $gender = $age = $phone = $comment = '';
+        $stNameErr = $fNameErr = $mNameErr = $emailErr = $passwordErr = $repasswordErr = $genderErr = $ageErr = $phoneErr = $commentErr = $departmentErr = $filesErr = '';
+        $stName = $fName = $mName = $email = $password = $repassword = $regender = $age = $phone = $comment = '';
         $stNameLen = strlen($_POST['stName']);
         $fNameLen = strlen($_POST['fName']);
         $mNameLen = strlen($_POST['mName']);
+        $passwordLen = strlen($_POST['password']);
 
         //take values from form
         if($_SERVER['REQUEST_METHOD'] == 'POST'){
@@ -90,6 +91,22 @@
             }else{
                 $email = senitizeStudent($_POST['email']);
             }
+            //Password Validation
+            if(empty($_POST['password'])){
+                $passwordErr = "You must fill Password";
+            }else if($passwordLen<8){
+                $passwordErr = "Password Length must be at least 8 characters";
+            }else{
+                $password = senitizeStudent($_POST['password']);
+            }
+            //rePassword Validation
+            if(empty($_POST['repassword'])){
+                $repasswordErr = "You must fill Retype-Password";
+            }else if($_POST['repassword'] != $_POST['password']){
+                $repasswordErr = "Password don't match";
+            }else{
+                $repassword = senitizeStudent($_POST['repassword']);
+            }
             //Gender Validation
             if(empty($_POST['gender'])){
                 $genderErr = "You must Select Gender";
@@ -120,15 +137,29 @@
                 $commentErr = "You must fill Comment";
             }else{
                 $comment = senitizeStudent($_POST['comment']);
-            }      
+            }
+            //Files Validation
+            $allowedTypes = array(
+                "image/jpg",
+                "image/jpeg",
+                "image/png"
+            );
+            if(!file_exists($_FILES['photo']['tmp_name'])){
+                $filesErr = "Plese select a photo";
+            }else if($_FILES["photo"]){
+                if(in_array($_FILES["photo"]["type"],$allowedTypes) !== false && $_FILES["photo"]["size"] < 5*1024*1024){
+                    move_uploaded_file($_FILES["photo"]["tmp_name"], "files/".$_FILES["photo"]["name"]);
+                }
+            }
+
+                
         }
     ?>
-
     
 
     <div class="container">
         <div class="row">
-            <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+            <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post" enctype="multipart/form-data">
                 <div class="mt-2 mb-2">
                     <label for="stName">Student Name : <span>*</span></label>
                     <input type="text" class="form-control" name="stName" id="stName" placeholder="Enter Student name" value="<?php echo $stName; ?>">
@@ -148,6 +179,16 @@
                     <label for="email">Email Address : <span>*</span></label>
                     <input type="email" class="form-control" name="email" id="email" placeholder="Enter Student's Email Address" value="<?php echo $email; ?>">
                     <span><?php echo $emailErr; ?></span>
+                </div>
+                <div class="mt-2 mb-2">
+                    <label for="password">Password : <span>*</span></label>
+                    <input type="password" class="form-control" name="password" id="password" placeholder="Enter Your Password " value="<?php echo $password; ?>">
+                    <span><?php echo $passwordErr; ?></span>
+                </div>
+                <div class="mt-2 mb-2">
+                    <label for="repassword">Retype Password : <span>*</span></label>
+                    <input type="password" class="form-control" name="repassword" id="repassword" placeholder="Enter Passsword Again" value="<?php echo $repassword; ?>">
+                    <span><?php echo $repasswordErr; ?></span>
                 </div>
                 <div class="mt-2 mb-2">
                     <label for="gender">Gender : <span>*</span></label>
@@ -199,6 +240,11 @@
                     <label for="comment">Comment : <span>*</span></label>
                     <textarea name="comment" id="comment" cols="30" rows="5" class="form-control"><?php echo $comment; ?></textarea>
                     <span><?php echo $commentErr; ?></span>
+                </div>
+                <div class="mt-2 mb-2">
+                    <label for="photo">Upload Student Photo : <span>*</span></label>
+                    <input type="file" class="form-control" name="photo" id="image" value="">
+                    <span><?php echo $filesErr; ?></span>
                 </div>
                 <div class="mt-3 mb-2">
                     <input type="submit" value="Submit" class="btn btn-primary p-2">
