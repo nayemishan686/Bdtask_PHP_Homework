@@ -126,7 +126,6 @@
                 $phone = senitizeStudent($_POST['phone']);
             }
             //Department Validation
-            //Comment Validation
             if(empty($_POST['department'])){
                 $departmentErr = "You must select Department";
             }else{
